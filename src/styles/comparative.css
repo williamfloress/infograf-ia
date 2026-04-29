@@ -1,0 +1,132 @@
+/* ── COMPARATIVE VIEW ────────────────────────────────────── */
+.comparative {
+  padding: 2rem 0 3rem;
+}
+
+.comparative__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.comparative__subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+/* ── HEAT MATRIX ─────────────────────────────────────────── */
+.matrix-wrapper {
+  overflow-x: auto;
+  margin-bottom: 3rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.matrix th {
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.matrix th:first-child { text-align: left; }
+
+.matrix td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+
+.matrix td:first-child {
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.matrix tr:last-child td { border-bottom: none; }
+
+/* Activity cells */
+.cell {
+  text-align: center;
+  border-radius: 6px;
+  transition: transform var(--transition);
+}
+
+.cell:hover { transform: scale(1.15); }
+
+.cell--0 { color: var(--text-muted); }
+.cell--1 { font-size: 1rem; }
+.cell--2 { font-size: 1.1rem; }
+.cell--3 { font-size: 1.2rem; }
+
+/* ── CONCLUSIONS ─────────────────────────────────────────── */
+.conclusions__heading {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.conclusion-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--c-compare);
+  transition: transform var(--transition);
+}
+
+.conclusion-card:hover { transform: translateX(4px); }
+
+.conclusion-card h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.conclusion-card p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+/* ── LEGEND ──────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.legend__dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
