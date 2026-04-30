@@ -2,7 +2,7 @@ import { references } from '../data/references';
 
 export default function References() {
   return (
-    <section className="fade-up" style={{ padding: '3rem 0', borderTop: '1px solid var(--border)' }}>
+    <section className="fade-up" style={{ padding: '3rem 0', borderTop: '2px dashed var(--border)' }}>
       <h2 style={{
         fontFamily: 'Outfit, sans-serif',
         fontSize: '1.4rem',
@@ -20,7 +20,7 @@ export default function References() {
               fontSize: '1.1rem',
               color: 'var(--text-primary)',
               marginBottom: '1rem',
-              borderBottom: '1px solid rgba(255,255,255,0.05)',
+              borderBottom: '2px solid var(--border)',
               paddingBottom: '0.5rem',
             }}>
               {group.label}
@@ -41,7 +41,7 @@ export default function References() {
                   }}>
                     {parts.map((part, i) =>
                       urlRegex.test(part) ? (
-                        <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--c-general)', textDecoration: 'none' }}>
+                        <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--c-general)', textDecoration: 'none', fontWeight: 600 }}>
                           {part}
                         </a>
                       ) : (

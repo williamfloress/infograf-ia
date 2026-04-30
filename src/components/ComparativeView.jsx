@@ -1,66 +1,68 @@
 import { comparativeData } from '../data/comparativeData';
 import '../styles/comparative.css';
+import { useState } from 'react';
 
 export default function ComparativeView() {
   const { decades, categories, labels, colors, activity, conclusions } = comparativeData;
+  const [activeDecadeIndex, setActiveDecadeIndex] = useState(decades.length - 1); // Default to 2020s
 
   return (
     <section className="comparative fade-up">
-      <h2 className="comparative__title">Resumen Comparativo</h2>
-      <p className="comparative__subtitle">Evolución de la actividad en Inteligencia Artificial por décadas y regiones</p>
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h2 className="comparative__title">Panel de Datos Interactivo</h2>
+        <p className="comparative__subtitle">Analiza el nivel de actividad e inversión en IA seleccionando una década</p>
+      </div>
 
-      {/* Leyenda */}
-      <div className="legend">
-        {categories.map(cat => (
-          <div key={cat} className="legend__item">
-            <span className="legend__dot" style={{ background: colors[cat] }}></span>
-            {labels[cat]}
-          </div>
+      {/* Interactive Decade Selector */}
+      <div className="decade-selector">
+        {decades.map((d, index) => (
+          <button 
+            key={d} 
+            className={`decade-btn ${index === activeDecadeIndex ? 'active' : ''}`}
+            onClick={() => setActiveDecadeIndex(index)}
+          >
+            {d}
+          </button>
         ))}
       </div>
 
-      {/* Heat Matrix */}
-      <div className="matrix-wrapper">
-        <table className="matrix">
-          <thead>
-            <tr>
-              <th>Región / Década</th>
-              {decades.map(d => <th key={d}>{d}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map(cat => (
-              <tr key={cat}>
-                <td>{labels[cat]}</td>
-                {decades.map((d, index) => {
-                  const val = activity[cat][index];
-                  // Intensity mapping
-                  const intensityMap = {
-                    0: { bg: 'transparent', char: '·' },
-                    1: { bg: `${colors[cat]}33`, char: '●' }, // Low
-                    2: { bg: `${colors[cat]}88`, char: '●' }, // Medium
-                    3: { bg: colors[cat], char: '●' }         // High
-                  };
-                  return (
-                    <td key={`${cat}-${d}`}>
-                      <div className={`cell cell--${val}`} style={{ color: val > 0 ? colors[cat] : '' }}>
-                        {intensityMap[val].char}
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Bar Charts for the selected decade */}
+      <div className="chart-container">
+        <h3 className="chart-title">Desarrollo Regional en la década de {decades[activeDecadeIndex]}</h3>
+        <div className="bars-wrapper">
+          {categories.map(cat => {
+            const val = activity[cat][activeDecadeIndex];
+            // Map 0,1,2,3 to percentages
+            const percentage = val === 0 ? 8 : val === 1 ? 35 : val === 2 ? 70 : 100;
+            return (
+              <div key={cat} className="bar-row">
+                <div className="bar-label">{labels[cat]}</div>
+                <div className="bar-track">
+                  <div 
+                    className="bar-fill" 
+                    style={{ 
+                      width: `${percentage}%`, 
+                      backgroundColor: colors[cat],
+                      opacity: val === 0 ? 0.3 : 1
+                    }}
+                  >
+                    <span className="bar-value">
+                      {val === 0 ? 'Nulo' : val === 1 ? 'Bajo' : val === 2 ? 'Medio' : 'Alto'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Conclusiones */}
+      {/* Conclusions styled as interactive cards */}
       <div className="conclusions">
         <h3 className="conclusions__heading">
-          <span style={{ color: 'var(--c-compare)' }}>■</span> Conclusiones Principales
+          <span style={{ color: '#8134C4' }}>■</span> Conclusiones Clave
         </h3>
-        <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+        <div className="conclusions-grid">
           {conclusions.map((c, i) => (
             <article key={i} className="conclusion-card">
               <h4>{c.title}</h4>
