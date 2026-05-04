@@ -1,5 +1,5 @@
 import { 
-  BookOpen, Monitor, Cpu, Globe, Cloud, Bot, CornerRightDown, CornerLeftDown, ChevronUp, ChevronDown, 
+  BookOpen, Monitor, Cpu, Cloud, Bot, CornerRightDown, CornerLeftDown, ChevronUp, ChevronDown, 
   BrainCircuit, Scale, Building2, Sparkles, Network, Code2, GraduationCap, 
   Microscope, LineChart, Landmark, ShieldCheck, Zap, Image as ImageIcon 
 } from 'lucide-react';
@@ -63,7 +63,7 @@ const GraphicContent = ({ ev, nodeColor, IconComponent }) => {
   );
 };
 
-export default function Timeline({ events, label, onReset, showReset }) {
+export default function Timeline({ events, label }) {
   const [expandedIds, setExpandedIds] = useState([]); // All hidden by default
 
   const toggleExpand = (id) => {
@@ -77,31 +77,6 @@ export default function Timeline({ events, label, onReset, showReset }) {
   return (
     <section className="timeline-container fade-up">
       <div className="timeline-header" style={{ marginBottom: '4rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-        {showReset && (
-          <button 
-            onClick={onReset}
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'var(--text-secondary)',
-              padding: '0.6rem 1.5rem',
-              borderRadius: '24px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.6rem',
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: 700,
-              fontSize: '0.95rem',
-              transition: 'all 0.2s',
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#F8FAFC'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            <Globe size={18} /> Volver a Visión General
-          </button>
-        )}
-        
         <div>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#F8FAFC', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
             {label}

@@ -1,4 +1,4 @@
-import { Brain } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 export default function Header() {
   return (
@@ -31,6 +31,27 @@ export default function Header() {
         }}>
           Análisis de seis perspectivas globales y regionales desde 1950 hasta 2026
         </p>
+
+        {/* CTA: Mapa interactivo */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginTop: '1.25rem',
+          padding: '0.5rem 1.25rem',
+          borderRadius: '999px',
+          background: 'rgba(148, 163, 184, 0.08)',
+          border: '1px solid rgba(148, 163, 184, 0.15)',
+          color: 'var(--c-general)',
+          fontSize: '0.85rem',
+          fontFamily: 'Outfit, sans-serif',
+          fontWeight: 600,
+          letterSpacing: '0.02em',
+          animation: 'pulse 3s infinite ease-in-out',
+        }}>
+          <Globe size={16} style={{ opacity: 0.9 }} />
+          <span>Explora el mapa interactivo y recorre la historia de la IA en distintos países</span>
+        </div>
       </div>
     </header>
   );

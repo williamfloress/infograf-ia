@@ -225,4 +225,12 @@
     width: 100%; 
   }
   .zz-dashed-line, .zz-arrow { display: none !important; }
+
+  /* Force text before image on mobile for odd rows (zz-right):
+     In zz-right, col-left has the image, col-right has the text.
+     We reorder so text (col-right) comes first. */
+  .zz-right .zz-col-left { order: 3; }
+  .zz-right .zz-col-right { order: 2; }
+  .zz-right .zz-center-col { order: 1; }
 }
+
