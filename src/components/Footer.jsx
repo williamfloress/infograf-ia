@@ -15,7 +15,7 @@ export default function Footer() {
           margin: 0,
           fontFamily: "'Outfit', sans-serif"
         }}>
-          Universidad de Oriente, Guatamare 2026
+          Universidad de Oriente, Nucleo Nueva Esparta,  2026
         </p>
         <p style={{
           fontSize: '0.95rem',
@@ -23,9 +23,31 @@ export default function Footer() {
           color: 'var(--text-secondary)',
           margin: 0
         }}>
-          Introducción a la IA.
+          Introducción a la IA - Profesor Samuel Rojas
         </p>
-        
+        <div style={{
+          marginTop: '1.5rem',
+          fontSize: '0.9rem',
+          color: 'var(--text-secondary)'
+        }}>
+          <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Proyecto de Investigación Realizado por:</p>
+          <ul style={{
+            listStyleType: 'none',
+            padding: 0,
+            margin: 0,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '1rem',
+            fontWeight: 500
+          }}>
+            <li>Amijoalian Roa</li>
+            <li>Aaron Ortiz</li>
+            <li>Josué Cabeza</li>
+            <li>Roberth Alvarez</li>
+            <li>William Flores</li>
+          </ul>
+        </div>
       </div>
     </footer>
   );

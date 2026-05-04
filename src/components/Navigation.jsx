@@ -1,9 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { ComposableMap, Geographies, Geography, Marker, Sphere, Graticule } from "react-simple-maps";
 import { CATEGORIES } from '../data/timelineData';
-import { BarChart2, Globe2, MousePointerClick } from 'lucide-react';
+import { MousePointerClick, ZoomIn, ZoomOut } from 'lucide-react';
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+
+// Zoom limits
+const MIN_SCALE = 200;
+const MAX_SCALE = 400;
+const ZOOM_STEP = 40;
 
 // ISO 3166-1 numeric codes for the target regions
 const TARGET_ISOS = {
@@ -35,53 +40,99 @@ const markers = [
 export default function Navigation({ active, onSelect }) {
   const getCategoryColor = (id) => CATEGORIES.find(c => c.id === id)?.color || '#333';
 
-  const [rotation, setRotation] = useState([-10, -20, 0]); // Center on Atlantic
+  const [rotation, setRotation] = useState([-10, -20, 0]);
+  const [scale, setScale] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hasDragged, setHasDragged] = useState(false);
+  const lastPinchDist = useRef(null);
 
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setHasDragged(false);
-    // Support both mouse and touch events
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    setDragStart({ x: clientX, y: clientY });
+  // Pinch-to-zoom: calculate distance between two touch points
+  const getTouchDist = (touches) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
   };
 
-  const handleMouseMove = useCallback((e) => {
-    if (!isDragging) return;
-    
-    // Optimizacion: Evitar actualizaciones excesivas reduciendo la frecuencia
-    // Este requestAnimationFrame previene parte del lag en SVG
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 2) {
+      // Pinch start
+      lastPinchDist.current = getTouchDist(e.touches);
+      setIsDragging(false);
+      return;
+    }
+    // Single finger drag
+    setIsDragging(true);
+    setHasDragged(false);
+    setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+  };
+
+  const handleTouchMove = useCallback((e) => {
+    if (e.touches.length === 2 && lastPinchDist.current !== null) {
+      // Pinch zoom
+      const newDist = getTouchDist(e.touches);
+      const delta = newDist - lastPinchDist.current;
+      if (Math.abs(delta) > 3) {
+        setScale(s => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s + delta * 0.5)));
+        lastPinchDist.current = newDist;
+      }
+      return;
+    }
+    if (!isDragging || !e.touches.length) return;
     requestAnimationFrame(() => {
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
+      const clientX = e.touches[0].clientX;
+      const clientY = e.touches[0].clientY;
       const dx = clientX - dragStart.x;
       const dy = clientY - dragStart.y;
-      
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-        setHasDragged(true);
-      }
-      
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) setHasDragged(true);
       setRotation((r) => [r[0] + dx * 0.4, Math.max(-60, Math.min(60, r[1] - dy * 0.4)), r[2]]);
       setDragStart({ x: clientX, y: clientY });
     });
   }, [isDragging, dragStart]);
 
+  const handleTouchEnd = (e) => {
+    if (e.touches.length < 2) lastPinchDist.current = null;
+    if (e.touches.length === 0) setIsDragging(false);
+  };
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setHasDragged(false);
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging) return;
+    requestAnimationFrame(() => {
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) setHasDragged(true);
+      setRotation((r) => [r[0] + dx * 0.4, Math.max(-60, Math.min(60, r[1] - dy * 0.4)), r[2]]);
+      setDragStart({ x: e.clientX, y: e.clientY });
+    });
+  }, [isDragging, dragStart]);
+
   const handleMouseUp = () => setIsDragging(false);
+
+  // Mouse wheel zoom (desktop)
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    setScale(s => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s - e.deltaY * 0.3)));
+  }, []);
+
+  const zoomIn = () => setScale(s => Math.min(MAX_SCALE, s + ZOOM_STEP));
+  const zoomOut = () => setScale(s => Math.max(MIN_SCALE, s - ZOOM_STEP));
 
   const isVisible = (coordinates) => {
     let centerLon = -rotation[0] % 360;
     if (centerLon > 180) centerLon -= 360;
     if (centerLon < -180) centerLon += 360;
-    
     let lonDiff = Math.abs(coordinates[0] - centerLon);
     if (lonDiff > 180) lonDiff = 360 - lonDiff;
-    
     return lonDiff < 85; 
   };
+
+  const zoomPct = Math.round(((scale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE)) * 100);
 
   return (
     <div style={{ 
@@ -103,20 +154,21 @@ export default function Navigation({ active, onSelect }) {
             display: 'flex', justifyContent: 'center', alignItems: 'center',
             cursor: isDragging ? 'grabbing' : 'grab',
             touchAction: 'none',
-            // Añadir hardware acceleration para mejorar performance
-            transform: 'translateZ(0)'
+            transform: 'translateZ(0)',
+            position: 'relative'
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
         >
           <ComposableMap 
             projection="geoOrthographic" 
-            projectionConfig={{ scale: 240, rotate: rotation }} 
+            projectionConfig={{ scale, rotate: rotation }} 
             style={{ width: "100%", height: "100%", pointerEvents: 'none' }} 
           >
             {/* Esfera con el fondo del océano con efecto holográfico brillante */}
@@ -141,7 +193,7 @@ export default function Navigation({ active, onSelect }) {
                       onClick={() => !hasDragged && isStudied && onSelect(countryId)}
                       onTouchEnd={(e) => {
                         if (!hasDragged && isStudied) {
-                          e.preventDefault(); // Evita doble click fantasma
+                          e.preventDefault();
                           onSelect(countryId);
                         }
                       }}
@@ -212,6 +264,67 @@ export default function Navigation({ active, onSelect }) {
               );
             })}
           </ComposableMap>
+
+          {/* Zoom Controls */}
+          <div style={{
+            position: 'absolute',
+            bottom: '12px',
+            right: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            zIndex: 10
+          }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); zoomIn(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); zoomIn(); }}
+              disabled={scale >= MAX_SCALE}
+              style={{
+                width: '36px', height: '36px',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(26, 29, 36, 0.85)',
+                backdropFilter: 'blur(8px)',
+                color: scale >= MAX_SCALE ? 'rgba(255,255,255,0.2)' : '#E5E7EB',
+                cursor: scale >= MAX_SCALE ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+                pointerEvents: 'auto'
+              }}
+              aria-label="Acercar"
+            >
+              <ZoomIn size={18} />
+            </button>
+            <div style={{
+              textAlign: 'center',
+              fontSize: '0.6rem',
+              fontFamily: 'Outfit, sans-serif',
+              color: 'rgba(255,255,255,0.4)',
+              fontWeight: 700
+            }}>
+              {zoomPct}%
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); zoomOut(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); zoomOut(); }}
+              disabled={scale <= MIN_SCALE}
+              style={{
+                width: '36px', height: '36px',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(26, 29, 36, 0.85)',
+                backdropFilter: 'blur(8px)',
+                color: scale <= MIN_SCALE ? 'rgba(255,255,255,0.2)' : '#E5E7EB',
+                cursor: scale <= MIN_SCALE ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+                pointerEvents: 'auto'
+              }}
+              aria-label="Alejar"
+            >
+              <ZoomOut size={18} />
+            </button>
+          </div>
         </div>
 
         <div style={{
@@ -227,7 +340,7 @@ export default function Navigation({ active, onSelect }) {
           gap: '8px',
           animation: 'pulse 3s infinite ease-in-out'
         }}>
-          <span><MousePointerClick size={16} /> Arrastra para girar el globo y haz clic en las regiones</span>
+          <span><MousePointerClick size={16} /> Arrastra, pellizca para zoom y haz clic en las regiones</span>
         </div>
       </div>
   );

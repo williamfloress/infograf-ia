@@ -60,3 +60,12 @@ Si deseas ejecutar este proyecto en tu propia máquina:
 
 **Universidad de Oriente, Guatamare 2026 — Introducción a la IA.**  
 Desarrollado para propósitos académicos y de difusión tecnológica. Todos los textos e hitos históricos han sido redactados originalmente basados en la literatura referenciada en la propia aplicación.
+
+Proyecto de Investigación Realizado por : 
+
+- Amijoalian Roa
+- Aaron Ortiz
+- Josué Cabeza 
+- Roberth Alvarez
+- William Flores
+
